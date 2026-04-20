@@ -1,0 +1,195 @@
+[
+  { "id": 1,  "nombre": "Sencilla",    "descripcion": "Salchicha, lechuga, personal", "precio": 12000, "categoria_id": 1 },
+  { "id": 2,  "nombre": "Salchipollo", "descripcion": "Salchicha, pollo, lechuga,personal", "precio": 14000, "categoria_id": 1 },
+  { "id": 3,  "nombre": "Especial",    "descripcion": "Salchicha, chorizo, butifarra, pollo, lechuga,personal", "precio": 17000, "categoria_id": 1 },
+  { "id": 4,  "nombre": "Butipapa",    "descripcion": "Butifarra, pollo, lechuga,personal", "precio": 16000, "categoria_id": 1 },
+  { "id": 5,  "nombre": "Choripapa",   "descripcion": "Chorizo, pollo, lechuga,personal", "precio": 16000, "categoria_id": 1 },
+  { "id": 6,  "nombre": "Mini Cuñao",  "descripcion": "Salchicha, chorizo, butifarra, pollo, carne, maíz, papa ripio, lechuga, personal", "precio": 20000, "categoria_id": 1 },
+  { "id": 7,  "nombre": "Mixta",       "descripcion": "Pollo, carne, salchicha, chorizo, butifarra, lechuga,para 2 personas", "precio": 26000, "categoria_id": 1 },
+  { "id": 8,  "nombre": "El Cuñao",    "descripcion": "Salchicha, chorizo, butifarra, pollo, carne, maíz, papa ripio, para 2 o 3 personas", "precio": 32000, "categoria_id": 1 },
+  { "id": 9,  "nombre": "Familiar",    "descripcion": "Salchicha, chorizo, butifarra, pollo, carne, maíz, papa ripio,para 4 personas", "precio": 55000, "categoria_id": 1 },
+  { "id": 10, "nombre": "Super Cuñao", "descripcion": "Salchicha, chorizo, butifarra, ranchera, pollo, carne, tocineta, maíz, papa ripio, para 5 personas", "precio": 65000, "categoria_id": 1 },
+  { "id": 11, "nombre": "Mega Cuñao",  "descripcion": "Ranchera, suiza, americana, tocineta, pollo, carne, lomo de cerdo, maíz, chorizo, butifarra, papa ripio, lechuga,para 6 personas ", "precio": 80000, "categoria_id": 1 },
+  { "id": 1001, "nombre": "Mexicana ⭐ Premium",    "descripcion": "Pollo, carne, ranchera, pico de gallo, toque picante,personal", "precio": 17000, "categoria_id": 1 },
+  { "id": 1002, "nombre": "La Caribeña ⭐ Premium", "descripcion": "Pollo, carne, ranchera, plátano maduro,personal", "precio": 18000, "categoria_id": 1 },
+  { "id": 1003, "nombre": "Ranchera ⭐ Premium",    "descripcion": "Salchicha ranchera, pollo,personal", "precio": 18000, "categoria_id": 1 },
+  { "id": 1004, "nombre": "Suiza ⭐ Premium",       "descripcion": "Salchicha suiza, pollo,personal", "precio": 21000, "categoria_id": 1 },
+  { "id": 1005, "nombre": "Costeña ⭐ Premium",     "descripcion": "Pollo, carne, salchicha ranchera, chicharrón,personal", "precio": 22000, "categoria_id": 1 },
+  { "id": 1006, "nombre": "La Master ⭐ Premium",   "descripcion": "Pollo, carne, tocineta, ranchera, queso crocante, personal ", "precio": 25000, "categoria_id": 1 },
+
+  { "id": 12, "nombre": "Sencillo",             "descripcion": "Salchicha Long, queso mozzarella, papa ripio", "precio": 11000, "categoria_id": 2 },
+  { "id": 13, "nombre": "Butiperro",            "descripcion": "Butifarra, queso mozzarella, papa ripio", "precio": 13000, "categoria_id": 2 },
+  { "id": 14, "nombre": "Choriperro",           "descripcion": "Chorizo, queso mozzarella, papa ripio", "precio": 13000, "categoria_id": 2 },
+  { "id": 15, "nombre": "Italiano",             "descripcion": "Salchicha Long, tocineta, queso mozzarella, papa ripio", "precio": 16000, "categoria_id": 2 },
+  { "id": 16, "nombre": "Mixto",                "descripcion": "Salchicha Long, pollo, carne, queso mozzarella, papa ripio", "precio": 16000, "categoria_id": 2 },
+  { "id": 17, "nombre": "Ranchero",             "descripcion": "Salchicha super ranchera, queso mozzarella, papa ripio", "precio": 17000, "categoria_id": 2 },
+  { "id": 18, "nombre": "Suizo",                "descripcion": "Salchicha suiza, queso mozzarella, papa ripio", "precio": 20000, "categoria_id": 2 },
+  { "id": 2001, "nombre": "Caribeño ⭐ Premium", "descripcion": "Salchicha Long, tajadas maduras, queso mozzarella, papa ripio", "precio": 14000, "categoria_id": 2 },
+  { "id": 2002, "nombre": "Costeño ⭐ Premium",  "descripcion": "Salchicha ranchera, chicharrón, queso mozzarella, papa ripio", "precio": 16000, "categoria_id": 2 },
+  { "id": 2003, "nombre": "El Cuñao ⭐ Premium", "descripcion": "Salchicha Long, pollo, lomo de cerdo, carne, chorizo, butifarra, tocineta, queso mozzarella, papa ripio", "precio": 20000, "categoria_id": 2 },
+  { "id": 2004, "nombre": "Master ⭐ Premium",   "descripcion": "Salchicha ranchera, pollo apanado, tocineta, queso mozzarella, papa ripio", "precio": 24000, "categoria_id": 2 },
+
+  { "id": 23, "nombre": "Pollo",          "descripcion": "Pechuga, queso mozzarella, jamón, cebolla, tomate (lechuga, papa a la francesa y salsa de la casa)", "precio": 15000, "categoria_id": 3 },
+  { "id": 24, "nombre": "Lomo de Cerdo",  "descripcion": "Lomo de cerdo, queso mozzarella, jamón, cebolla, tomate", "precio": 15000, "categoria_id": 3 },
+  { "id": 25, "nombre": "Carne",          "descripcion": "120g de carne, queso mozzarella, jamón, cebolla, tomate", "precio": 17000, "categoria_id": 3 },
+  { "id": 26, "nombre": "Doble Carne",    "descripcion": "240g de carne, queso mozzarella, jamón, cebolla, tomate", "precio": 23000, "categoria_id": 3 },
+  { "id": 27, "nombre": "Mixta",          "descripcion": "Pechuga, carne, queso mozzarella, jamón, cebolla, tomate", "precio": 23000, "categoria_id": 3 },
+  { "id": 28, "nombre": "La Costeña",     "descripcion": "120g de carne, chicharrón, queso mozzarella, jamón, cebolla, tomate", "precio": 21000, "categoria_id": 3 },
+  { "id": 29, "nombre": "Especial",       "descripcion": "Pechuga, carne, chorizo, butifarra, queso mozzarella, jamón, cebolla, tomate", "precio": 25000, "categoria_id": 3 },
+  { "id": 3001, "nombre": "Mexicana ⭐ Premium",  "descripcion": "Carne, pico de gallo con toque picante, queso mozzarella, jamón, cebolla, tomate", "precio": 19000, "categoria_id": 3 },
+  { "id": 3002, "nombre": "Master ⭐ Premium",    "descripcion": "Pechuga apanada, tocineta, papa ripio, queso mozzarella, jamón, cebolla, tomate", "precio": 25000, "categoria_id": 3 },
+  { "id": 3003, "nombre": "El Cuñao ⭐ Premium",  "descripcion": "Pechuga, carne, lomo de cerdo, chorizo, butifarra, tocineta, queso mozzarella, jamón, cebolla, tomate", "precio": 30000, "categoria_id": 3 },
+
+  { "id": 39, "nombre": "Pollo",    "descripcion": "Maíz tierno, pollo, queso mozzarella, lechuga, queso costeño, papa ripio, salsa de la casa", "precio": 18000, "categoria_id": 4 },
+  { "id": 40, "nombre": "Carne",    "descripcion": "Maíz tierno, carne, queso mozzarella, lechuga, queso costeño, papa ripio, salsa de la casa", "precio": 23000, "categoria_id": 4 },
+  { "id": 41, "nombre": "Mixto",    "descripcion": "Maíz tierno, pollo, carne, queso mozzarella, lechuga, queso costeño, papa ripio, papa a la francesa, salsa de la casa", "precio": 26000, "categoria_id": 4 },
+  { "id": 42, "nombre": "El Cuñao", "descripcion": "Maíz tierno, pollo, lomo de cerdo, carne, chorizo, butifarra, ranchera, queso mozzarella, lechuga, queso costeño, papa ripio, papas a la francesa, salsa de la casa", "precio": 32000, "categoria_id": 4 },
+
+  { "id": 43, "nombre": "Pollo",    "descripcion": "Dos tapas de plátano verde, pollo, queso mozzarella, queso costeño, hogao", "precio": 20000, "categoria_id": 5 },
+  { "id": 44, "nombre": "Carne",    "descripcion": "Dos tapas de plátano verde, carne, queso mozzarella, queso costeño, hogao", "precio": 25000, "categoria_id": 5 },
+  { "id": 45, "nombre": "Mixto",    "descripcion": "Dos tapas de plátano verde, pollo, carne, queso mozzarella, queso costeño, hogao", "precio": 30000, "categoria_id": 5 },
+  { "id": 46, "nombre": "El Cuñao", "descripcion": "Dos tapas de plátano verde, pollo, lomo de cerdo, carne, chorizo, butifarra, ranchera, queso mozzarella, queso costeño, hogao", "precio": 33000, "categoria_id": 5 },
+
+  { "id": 47, "nombre": "Mixta",            "descripcion": "Arepa de maíz, pollo, carne, queso costeño, lechuga, papa ripio", "precio": 20000, "categoria_id": 6 },
+  { "id": 48, "nombre": "El Cuñao",         "descripcion": "Arepa de maíz, pollo, carne, lomo de cerdo, ranchera, chorizo, butifarra, queso costeño, lechuga, papa ripio", "precio": 24000, "categoria_id": 6 },
+  { "id": 49, "nombre": "Chuzo Desgranado", "descripcion": "Bollo de queso, carne, pollo, cerdo, lechuga, queso costeño, salsa", "precio": 22000, "categoria_id": 6 },
+
+  {
+    "id": 50, "nombre": "Jefer", "categoria_id": 7,
+    "descripcion": "Clásica hawaiana",
+    "sabor": true,
+    "tamaños": [
+      { "id": "50a", "label": "Porción",        "porciones": "1 porción",   "precio": 5000  },
+      { "id": "50b", "label": "Personal",       "porciones": "4 porciones", "precio": 14000 },
+      { "id": "50c", "label": "Mediana",        "porciones": "6 porciones", "precio": 24000 },
+      { "id": "50d", "label": "Familiar",       "porciones": "8 porciones", "precio": 37000 },
+      { "id": "50e", "label": "Super Familiar", "porciones": "12 porciones","precio": 47000 }
+    ]
+  },
+  {
+    "id": 51, "nombre": "Luifer", "categoria_id": 7,
+    "descripcion": "Clásico jamón y queso",
+    "sabor": true,
+    "tamaños": [
+      { "id": "51a", "label": "Porción",        "porciones": "1 porción",   "precio": 5000  },
+      { "id": "51b", "label": "Personal",       "porciones": "4 porciones", "precio": 14000 },
+      { "id": "51c", "label": "Mediana",        "porciones": "6 porciones", "precio": 24000 },
+      { "id": "51d", "label": "Familiar",       "porciones": "8 porciones", "precio": 37000 },
+      { "id": "51e", "label": "Super Familiar", "porciones": "12 porciones","precio": 47000 }
+    ]
+  },
+  {
+    "id": 52, "nombre": "Mary", "categoria_id": 7,
+    "descripcion": "Pepperoni y mucho queso",
+    "sabor": true,
+    "tamaños": [
+      { "id": "52a", "label": "Porción",        "porciones": "1 porción",   "precio": 6500  },
+      { "id": "52b", "label": "Personal",       "porciones": "4 porciones", "precio": 17000 },
+      { "id": "52c", "label": "Mediana",        "porciones": "6 porciones", "precio": 27000 },
+      { "id": "52d", "label": "Familiar",       "porciones": "8 porciones", "precio": 40000 },
+      { "id": "52e", "label": "Super Familiar", "porciones": "12 porciones","precio": 50000 }
+    ]
+  },
+  {
+    "id": 53, "nombre": "Elsa", "categoria_id": 7,
+    "descripcion": "Pollo, champiñones y mucho queso",
+    "sabor": true,
+    "tamaños": [
+      { "id": "53a", "label": "Porción",        "porciones": "1 porción",   "precio": 7500  },
+      { "id": "53b", "label": "Personal",       "porciones": "4 porciones", "precio": 17000 },
+      { "id": "53c", "label": "Mediana",        "porciones": "6 porciones", "precio": 27000 },
+      { "id": "53d", "label": "Familiar",       "porciones": "8 porciones", "precio": 40000 },
+      { "id": "53e", "label": "Super Familiar", "porciones": "12 porciones","precio": 50000 }
+    ]
+  },
+  {
+    "id": 54, "nombre": "Fer", "categoria_id": 7,
+    "descripcion": "Clásica mexicana",
+    "sabor": true,
+    "tamaños": [
+      { "id": "54a", "label": "Porción",        "porciones": "1 porción",   "precio": 7500  },
+      { "id": "54b", "label": "Personal",       "porciones": "4 porciones", "precio": 19000 },
+      { "id": "54c", "label": "Mediana",        "porciones": "6 porciones", "precio": 29000 },
+      { "id": "54d", "label": "Familiar",       "porciones": "8 porciones", "precio": 41000 },
+      { "id": "54e", "label": "Super Familiar", "porciones": "12 porciones","precio": 52000 }
+    ]
+  },
+  {
+    "id": 55, "nombre": "Dos Quesos", "categoria_id": 7,
+    "descripcion": "Queso mozzarella y parmesano",
+    "sabor": true,
+    "tamaños": [
+      { "id": "55a", "label": "Porción",        "porciones": "1 porción",   "precio": 6500  },
+      { "id": "55b", "label": "Personal",       "porciones": "4 porciones", "precio": 19000 },
+      { "id": "55c", "label": "Mediana",        "porciones": "6 porciones", "precio": 29000 },
+      { "id": "55d", "label": "Familiar",       "porciones": "8 porciones", "precio": 42000 },
+      { "id": "55e", "label": "Super Familiar", "porciones": "12 porciones","precio": 52000 }
+    ]
+  },
+  {
+    "id": 56, "nombre": "Corne", "categoria_id": 7,
+    "descripcion": "Pollo, carne, vegetales y queso",
+    "sabor": true,
+    "tamaños": [
+      { "id": "56a", "label": "Porción",        "porciones": "1 porción",   "precio": 7000  },
+      { "id": "56b", "label": "Personal",       "porciones": "4 porciones", "precio": 20000 },
+      { "id": "56c", "label": "Mediana",        "porciones": "6 porciones", "precio": 30000 },
+      { "id": "56d", "label": "Familiar",       "porciones": "8 porciones", "precio": 42000 },
+      { "id": "56e", "label": "Super Familiar", "porciones": "12 porciones","precio": 53000 }
+    ]
+  },
+  {
+    "id": 57, "nombre": "Tres Carnes", "categoria_id": 7,
+    "descripcion": "Pepperoni, ranchera, tocineta",
+    "sabor": true,
+    "tamaños": [
+      { "id": "57a", "label": "Porción",        "porciones": "1 porción",   "precio": 7500  },
+      { "id": "57b", "label": "Personal",       "porciones": "4 porciones", "precio": 22000 },
+      { "id": "57c", "label": "Mediana",        "porciones": "6 porciones", "precio": 32000 },
+      { "id": "57d", "label": "Familiar",       "porciones": "8 porciones", "precio": 44000 },
+      { "id": "57e", "label": "Super Familiar", "porciones": "12 porciones","precio": 54000 }
+    ]
+  },
+  {
+    "id": 58, "nombre": "La Fiera", "categoria_id": 7,
+    "descripcion": "Pollo, ranchera, jalapeño y queso",
+    "sabor": true,
+    "tamaños": [
+      { "id": "58a", "label": "Porción",        "porciones": "1 porción",   "precio": 8000  },
+      { "id": "58b", "label": "Personal",       "porciones": "4 porciones", "precio": 20000 },
+      { "id": "58c", "label": "Mediana",        "porciones": "6 porciones", "precio": 30000 },
+      { "id": "58d", "label": "Familiar",       "porciones": "8 porciones", "precio": 42000 },
+      { "id": "58e", "label": "Super Familiar", "porciones": "12 porciones","precio": 53000 }
+    ]
+  },
+  {
+    "id": 59, "nombre": "El Cuñao", "categoria_id": 7,
+    "descripcion": "Chorizo, butifarra, ranchera, pollo, orégano y queso",
+    "sabor": true,
+    "tamaños": [
+      { "id": "59a", "label": "Porción",        "porciones": "1 porción",   "precio": 8500  },
+      { "id": "59b", "label": "Personal",       "porciones": "4 porciones", "precio": 24000 },
+      { "id": "59c", "label": "Mediana",        "porciones": "6 porciones", "precio": 39000 },
+      { "id": "59d", "label": "Familiar",       "porciones": "8 porciones", "precio": 49000 },
+      { "id": "59e", "label": "Super Familiar", "porciones": "12 porciones","precio": 58000 }
+    ]
+  },
+
+  { "id": 100, "nombre": "Sencilla",     "descripcion": "Lomo de cerdo, pollo, carne, chorizo, butifarra, papas a la francesa y ensalada", "precio": 24000, "categoria_id": 8 },
+  { "id": 101, "nombre": "Dos Personas", "descripcion": "Lomo de cerdo, pollo, carne, chorizo, butifarra, papas a la francesa y ensalada", "precio": 40000, "categoria_id": 8 },
+  { "id": 102, "nombre": "El Cuñao",     "descripcion": "Lomo de cerdo, pollo, carne, chorizo, butifarra, ranchera, maíz, papas a la francesa y ensalada,esta picada esta hecha para 3 personas", "precio": 65000, "categoria_id": 8 },
+  { "id": 103, "nombre": "Mini Master",  "descripcion": "Pechuga, lomo de cerdo, pollo, carne, chorizo, suiza, salchicha polaca, ranchera, maíz, queso asado, patacones y papas a la francesa, con esta picada comen de 3 a 4 personas", "precio": 48000, "categoria_id": 8 },
+  { "id": 104, "nombre": "La Master",    "descripcion": "Pechuga, lomo de cerdo, pollo, carne, chorizo, suiza, salchicha polaca, ranchera, maíz, queso asado, patacones y papas a la francesa, de 4 a 5 personas", "precio": 72000, "categoria_id": 8 },
+
+  { "id": 105, "nombre": "Pechuga Asada",  "descripcion": "250g de pechuga asada, papas a la francesa y ensalada", "precio": 21000, "categoria_id": 9 },
+  { "id": 106, "nombre": "Lomo de Cerdo",  "descripcion": "250g de cerdo asado, papas a la francesa y ensalada", "precio": 21000, "categoria_id": 9 },
+  { "id": 107, "nombre": "Carne Asada",    "descripcion": "250g de carne asada, papas a la francesa y ensalada", "precio": 25000, "categoria_id": 9 },
+  { "id": 108, "nombre": "Asado Mixto",    "descripcion": "Carne de res, pechuga, papas a la francesa y ensalada", "precio": 28000, "categoria_id": 9 },
+  { "id": 109, "nombre": "Asado El Cuñao", "descripcion": "Carne de res, lomo de cerdo, pechuga, papas a la francesa y ensalada", "precio": 38000, "categoria_id": 9 },
+
+  { "id": 110, "nombre": "Personales",      "descripcion": "Gaseosa personal", "precio": 4000, "categoria_id": 10 },
+  { "id": 111, "nombre": "Postobón Litro",  "descripcion": "Botella de 1 litro", "precio": 5000, "categoria_id": 10 },
+  { "id": 112, "nombre": "Coca Cola Litro", "descripcion": "Botella de 1 litro", "precio": 6000, "categoria_id": 10 },
+  { "id": 113, "nombre": "Jugo Hit Litro",  "descripcion": "Botella de 1 litro", "precio": 6000, "categoria_id": 10 },
+  { "id": 114, "nombre": "Agua",            "descripcion": "Agua mineral", "precio": 2000, "categoria_id": 10 }
+]

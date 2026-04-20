@@ -1,0 +1,12 @@
+[
+  { "id": 1, "nombre": "Salchipapas " },
+  { "id": 2, "nombre": "Perros Calientes" },
+  { "id": 3, "nombre": "Hamburguesas" },
+  { "id": 4, "nombre": "Desgranados" },
+  { "id": 5, "nombre": "Patacones Rellenos" },
+  { "id": 6, "nombre": "Arepas Picadas y Chuzos" },
+  { "id": 7, "nombre": "Pizzas" },
+  { "id": 8, "nombre": "Picadas" },
+  { "id": 9, "nombre": "Asados" },
+  { "id": 10, "nombre": "Bebidas" }
+]

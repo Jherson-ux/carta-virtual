@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menú — El Cuñao</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilo.css">
+  <script defer src="menu.js"></script>
+</head>
+<body>
+
+ <header>
+    <div class="header-inner">
+      <img src="logo.png" alt="El Cuñao" class="logo-img" onerror="this.style.display='none';document.querySelector('.logo-fallback').style.display='flex'">
+      <div class="logo-fallback">EC</div>
+      <div class="header-text">
+        <h1>El Cuñao</h1>
+        <p class="tagline">Siempre contigo</p>
+      </div>
+      <div class="header-badges">
+        <span class="badge-open">● Abierto</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="hero-banner">
+    <div class="hero-left">
+      <span class="hero-tag">🔥 Lo más pedido hoy</span>
+      <p class="hero-desc">Salchipapas, perros, hamburguesas y más — directo a tu puerta
+        <br>Todas las Salchipapas llevan (papas a la francesa, lechuga, queso costeño, salsa de la casa)</br>
+      </p>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-val">30–45</span><span class="stat-lbl">min entrega</span></div>
+      <div class="stat-sep"></div>
+      <div class="stat"><span class="stat-val">4.9 ★</span><span class="stat-lbl">valoración</span></div>
+    </div>
+  </div>
+
+  <div id="search-cat-wrapper">
+    <div class="search-bar-wrap">
+      <svg class="search-icon" viewBox="0 0 20 20" fill="none"><circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M13 13l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <input type="text" id="search-input" placeholder="Buscar en el menú..." autocomplete="off">
+      <button class="search-clear" id="search-clear">✕</button>
+    </div>
+    <div id="categories-wrapper">
+      <div id="categories"></div>
+    </div>
+  </div>
+
+  <main>
+    <div id="section-header">
+      <span id="section-label">Todo el menú</span>
+      <span id="section-count"></span>
+    </div>
+    <div id="menu"></div>
+  </main>
+
+  <button id="cart-button">
+    <span class="cart-icon">🛒</span>
+    <span id="cart-label">Ver carrito</span>
+    <span id="cart-count">0</span>
+  </button>
+
+  <div id="cart-modal">
+    <div id="cart">
+      <div class="cart-header">
+        <h2>Tu pedido</h2>
+        <button id="close-cart" class="close-btn">✕</button>
+      </div>
+      <div id="cart-items"></div>
+      <div class="cart-footer">
+        <div class="total-row">
+          <span>Subtotal productos</span>
+          <span id="total-display">$0</span>
+        </div>
+        <div class="cart-delivery-note">
+          🛵 Costo de domicilio se cobra por separado según tu ubicación.
+        </div>
+        <button id="checkout-button" onclick="checkout()">Continuar pedido →</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="pedido-modal" class="pedido-modal">
+    <div class="pedido-modal-content">
+      <div class="modal-header">
+        <h2>Completa tu pedido</h2>
+        <button class="close-modal-btn" onclick="document.getElementById('pedido-modal').style.display='none'">✕</button>
+      </div>
+
+      <div class="field-group">
+        <label for="entrega">Tipo de entrega</label>
+        <select id="entrega">
+          <option value="Domicilio">🛵 Domicilio</option>
+          <option value="Recoger en el local">🏠 Recoger en el local</option>
+          <option value="Comer en el local">🍽️ Comer en el local</option>
+        </select>
+      </div>
+
+      <div id="aviso-domicilio" class="aviso aviso-delivery">
+        🛵 <strong>Sobre el domicilio:</strong> El costo de envío se cobra por separado y varía según tu ubicación. El repartidor te confirmará el valor exacto al procesar tu pedido.
+      </div>
+
+      <div class="field-group">
+        <label for="cliente-nombre">Nombre completo</label>
+        <input type="text" id="cliente-nombre" placeholder="Ej: Juan Pérez">
+      </div>
+
+      <div id="direccion-grupo" class="field-group">
+        <label for="cliente-direccion">Dirección</label>
+        <input type="text" id="cliente-direccion" placeholder="Ej: Calle 123 #45-67 Barrio Centro">
+      </div>
+
+      <div class="field-group">
+        <label for="cliente-notas">Observaciones</label>
+        <textarea id="cliente-notas" placeholder="Sin cebolla, sin salsa..."></textarea>
+      </div>
+
+      <div class="field-group">
+        <label for="metodo-pago">Método de pago</label>
+        <select id="metodo-pago">
+          <option value="Nequi - 3204206795">Nequi · 3204206795</option>
+          <option value="Daviplata - 3204206795">Daviplata · 3204206795</option>
+          <option value="Bancolombia - 3026019939">Bancolombia · 3026019939</option>
+          <option value="Efectivo">Efectivo</option>
+        </select>
+      </div>
+
+      <div class="aviso">
+        📎 Adjunta el comprobante de pago en WhatsApp para agilizar tu pedido.
+      </div>
+
+      <div class="pedido-modal-buttons">
+        <button class="btn-enviar" onclick="enviarPedido()">Enviar por WhatsApp 📲</button>
+        <button class="btn-cancelar" onclick="document.getElementById('pedido-modal').style.display='none'">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 El Cuñao · Todos los derechos reservados</p>
+  </footer>
+
+</body>
+</html>
