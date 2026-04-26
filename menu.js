@@ -603,7 +603,7 @@ function enviarPedido() {
   msg += `\n📦 *Entrega:* ${entrega}`;
   msg += `\n💳 *Pago:* ${metodoPago}`;
   msg += `\n\n📎 _Adjunta el comprobante de pago._`;
-  window.location.href = `https://wa.me/573206700691?text=${encodeURIComponent(msg)}`;
+  window.location.href = `https://wa.me/573204206795?text=${encodeURIComponent(msg)}`;
 }
 
 // ── SEARCH ───────────────────────────────────────────────
