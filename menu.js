@@ -14,6 +14,9 @@ let allCats     = [];
 let activeCatId = 0;
 let searchQuery = "";
 
+// Variable global para evitar errores de sintaxis en el HTML del modal
+window.currentPendingMsg = null;
+
 // ── VISITS COUNTER ───────────────────────────────────────
 function trackVisit() {
   try {
@@ -68,7 +71,6 @@ function getOrderHistory() {
   catch { return []; }
 }
 
-
 function getHighDemand() {
   try { return JSON.parse(localStorage.getItem("ec_demand") || "{}"); }
   catch { return {}; }
@@ -79,7 +81,7 @@ function renderDemandBanner() {
   const d = getHighDemand();
   if (!d.active) { existing?.remove(); return; }
 
-  if (existing) return; // already shown
+  if (existing) return; 
   const banner = document.createElement("div");
   banner.id = "demand-banner";
   banner.innerHTML = `⏱ ${d.message || "Alta demanda ahora — pedidos en ~50 min"}`;
@@ -286,11 +288,9 @@ function buildCategories() {
     if (si) { si.value = ""; searchQuery = ""; }
     if (sc) sc.style.display = "none";
     renderAll();
-    // Scroll to menu on mobile
     setTimeout(() => {
       document.getElementById("menu")?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 80);
-    // Update URL
     const url = new URL(window.location);
     if (activeCatId > 0) url.searchParams.set("cat", activeCatId);
     else url.searchParams.delete("cat");
@@ -440,14 +440,12 @@ function buildCard(product, highlight = false) {
   const safeId   = String(product.id).replace(/'/g, "");
   const safeName = product.nombre.replace(/'/g, "\\'");
 
-  // Badges: nuevo o destacado
   const badgeHTML = product.nuevo
     ? `<span class="item-badge badge-new">🆕 Nuevo</span>`
     : product.destacado
       ? `<span class="item-badge badge-featured">⭐ Destacado</span>`
       : "";
 
-  // Share button for this product
   const shareHTML = `<button class="share-btn" title="Compartir" onclick="shareProduct(event,'${safeId}','${safeName}')">🔗</button>`;
 
   card.innerHTML = `
@@ -565,9 +563,8 @@ function addToCart(id, name, price, emoji) {
   else cart.push({ id, name, price, emoji: emoji || "🍽️", quantity: 1 });
   updateCart();
   showNotification(`Agregado ✓`, "success");
-  // Bounce animation on cart button
   cartButton.classList.remove("cart-bounce");
-  void cartButton.offsetWidth; // reflow to restart animation
+  void cartButton.offsetWidth; 
   cartButton.classList.add("cart-bounce");
   if (!searchQuery && activeCatId === 0) renderAll();
 }
@@ -630,7 +627,6 @@ function enviarPedido() {
   if (!celular) { showNotification("Por favor ingresa tu celular", "error"); return; }
   if (entrega === "Domicilio" && !direccion) { showNotification("Por favor ingresa tu dirección", "error"); return; }
 
-  // Build message
   let total = 0;
   let msg = `🍽️ *PEDIDO — EL CUÑAO*\n`;
   msg += `━━━━━━━━━━━━━━━━━━━━\n\n`;
@@ -664,11 +660,14 @@ function enviarPedido() {
   msg += `💳 *Pago:* ${metodoPago}\n\n`;
   msg += `📎 _Adjunta el comprobante de pago._`;
 
-  // Show confirmation before sending
   showOrderConfirmation(total, nombre, entrega, msg);
 }
 
+// ── CORRECCIÓN AQUÍ ─────────────────────────────────────
 function showOrderConfirmation(total, nombre, entrega, msg) {
+  // Guardamos el mensaje en la variable global temporal
+  window.currentPendingMsg = msg;
+
   document.getElementById("order-confirm")?.remove();
   const itemsList = cart.map(i =>
     `<div class="conf-item">
@@ -694,7 +693,7 @@ function showOrderConfirmation(total, nombre, entrega, msg) {
         🧍 ${nombre} · 📦 ${entrega}
       </div>
       <div class="conf-actions">
-        <button class="btn-enviar" onclick="confirmAndSend(${JSON.stringify(msg).replace(/</g,'\\u003c')})">
+        <button class="btn-enviar" onclick="confirmAndSend()">
           Enviar por WhatsApp 📲
         </button>
         <button class="btn-cancelar" onclick="document.getElementById('order-confirm').remove()">
@@ -705,12 +704,19 @@ function showOrderConfirmation(total, nombre, entrega, msg) {
   document.body.appendChild(div);
 }
 
-function confirmAndSend(msg) {
+function confirmAndSend() {
+  const msg = window.currentPendingMsg;
+  if (!msg) return;
+
   saveOrderHistory();
   document.getElementById("order-confirm")?.remove();
   document.getElementById("pedido-modal").style.display = "none";
   cart = [];
   updateCart();
+  
+  // Limpiamos la variable global
+  window.currentPendingMsg = null;
+  
   window.location.href = `https://wa.me/573204206795?text=${encodeURIComponent(msg)}`;
 }
 
@@ -771,7 +777,7 @@ function initDragScroll() {
   });
 }
 
-// ── DEEP LINK (open category from URL) ───────────────────
+// ── DEEP LINK ────────────────────────────────────────────
 function applyDeepLink() {
   const params = new URLSearchParams(window.location.search);
   const catId  = parseInt(params.get("cat") || "0");
@@ -850,7 +856,6 @@ function renderAdminPanel() {
             <span class="adm-slider"></span>
           </label>
         </div>
-        <small style="color:var(--muted);font-size:11px">Actívalo para cerrar antes de la hora habitual</small>
       </div>
 
       <div class="adm-section">
@@ -876,11 +881,6 @@ function renderAdminPanel() {
           value="${demand.message || "Alta demanda ahora — pedidos en ~50 min"}"
           placeholder="Mensaje de espera...">
         <button class="adm-btn" onclick="saveDemandMsg()">Guardar mensaje</button>
-      </div>
-
-      <div class="adm-section">
-        <div class="adm-title">🔗 Compartir menú</div>
-        <button class="adm-btn" onclick="shareCategory()">Copiar link de categoría activa</button>
       </div>
 
       <div class="adm-section">
@@ -928,7 +928,7 @@ function saveDemandMsg() {
 }
 
 function resetStats() {
-  if (!confirm("¿Resetear todas las estadísticas de visitas y popularidad?")) return;
+  if (!confirm("¿Resetear todas las estadísticas?")) return;
   localStorage.removeItem("ec_visits");
   localStorage.removeItem("ec_popularity");
   document.getElementById("admin-panel")?.remove();
@@ -942,7 +942,6 @@ function injectStyles() {
   s.textContent = `
     .badge-open { transition: background 0.3s, color 0.3s, border-color 0.3s; }
 
-    /* ── Light mode ── */
     [data-theme="light"] {
       --bg: #f5f0e8; --bg2: #fffdf8; --bg3: #f0e8d8; --bg4: #e8dcc8;
       --text: #2a1f10; --muted: #7a6040; --faint: #c0a880; --cream: #1a1008;
@@ -954,241 +953,44 @@ function injectStyles() {
     [data-theme="light"] header     { background: rgba(245,240,232,0.95); }
     [data-theme="light"] #search-cat-wrapper { background: #fffdf8; }
 
-    /* ── Theme toggle — floating corner ── */
     #theme-toggle {
-      position: fixed;
-      bottom: 90px;
-      left: 20px;
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 100px;
-      padding: 10px 14px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.25s;
-      z-index: 97;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-    }
-    #theme-toggle:hover {
-      border-color: var(--gold-d);
-      background: var(--bg3);
-      padding-right: 16px;
-    }
-    .theme-icon  { font-size: 16px; line-height: 1; }
-    .theme-label {
-      font-size: 12px; font-weight: 500;
-      color: var(--muted); font-family: 'DM Sans', sans-serif;
-      white-space: nowrap;
-    }
-    #theme-toggle:hover .theme-label { color: var(--gold); }
-    @media (max-width: 400px) {
-      #theme-toggle { padding: 10px 12px; bottom: 84px; left: 14px; }
-      .theme-label { display: none; }
-    }
-
-    /* ── Share button on card ── */
-    .item-top-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-    .share-btn {
-      margin-left: auto; background: transparent; border: none;
-      cursor: pointer; font-size: 13px; opacity: 0.4;
-      transition: opacity 0.2s; padding: 2px 4px;
-    }
-    .share-btn:hover { opacity: 1; }
-
-    /* ── Product badges ── */
-    .item-badge {
-      font-size: 10px; font-weight: 600; padding: 2px 7px;
-      border-radius: 100px; letter-spacing: 0.3px;
-    }
-    .badge-new      { background: rgba(76,175,120,0.15); color: #4caf78; border: 1px solid rgba(76,175,120,0.3); }
-    .badge-featured { background: rgba(212,169,66,0.15); color: var(--gold); border: 1px solid var(--gold-sm); }
-
-    /* ── Note modal ── */
-    #note-modal {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.65);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 600; padding: 16px; animation: nIn 0.2s ease;
-    }
-    .note-modal-box {
+      position: fixed; bottom: 90px; left: 20px;
       background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius-lg); padding: 22px;
-      width: 100%; max-width: 400px;
-      display: flex; flex-direction: column; gap: 12px;
+      border-radius: 100px; padding: 10px 14px;
+      cursor: pointer; display: flex; align-items: center; gap: 8px;
+      z-index: 97; box-shadow: 0 4px 16px rgba(0,0,0,0.3);
     }
-    .note-modal-header { display: flex; align-items: center; gap: 12px; }
-    .note-modal-name   { font-size: 15px; font-weight: 600; color: var(--cream); }
-    .note-modal-price  { font-size: 13px; color: var(--gold); }
-    .note-modal-header .close-modal-btn { margin-left: auto; }
-    .note-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
-    #note-input {
-      background: var(--bg3); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); color: var(--text);
-      font-family: 'DM Sans', sans-serif; font-size: 14px;
-      padding: 10px 12px; resize: vertical; outline: none;
-      transition: border-color 0.2s;
-    }
-    #note-input:focus { border-color: var(--gold-d); }
-    #note-input::placeholder { color: var(--faint); }
-    .note-modal-actions { display: flex; flex-direction: column; gap: 8px; }
+    .theme-icon  { font-size: 16px; }
+    .theme-label { font-size: 12px; font-weight: 500; color: var(--muted); }
+    @media (max-width: 400px) { .theme-label { display: none; } }
 
-    /* ── Demand banner ── */
-    #demand-banner {
-      background: rgba(212,169,66,0.12); border-top: 1px solid var(--gold-sm);
-      border-bottom: 1px solid var(--gold-sm);
-      color: var(--gold); text-align: center;
-      padding: 8px 16px; font-size: 13px; font-weight: 500;
-    }
+    .item-top-row { display: flex; align-items: center; gap: 6px; }
+    .share-btn { margin-left: auto; background: transparent; border: none; cursor: pointer; opacity: 0.4; }
+    .item-badge { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 100px; }
+    .badge-new { background: rgba(76,175,120,0.15); color: #4caf78; }
+    .badge-featured { background: rgba(212,169,66,0.15); color: var(--gold); }
 
-    /* ── Admin panel ── */
-    #admin-panel {
-      position: fixed; top: 0; right: 0; height: 100%;
-      width: 100%; max-width: 360px;
-      background: var(--bg2); border-left: 1px solid var(--border);
-      z-index: 700; overflow-y: auto; animation: slideInRight 0.3s ease;
-      box-shadow: -4px 0 20px rgba(0,0,0,0.4);
-    }
-    @keyframes slideInRight {
-      from { transform: translateX(100%); }
-      to   { transform: translateX(0); }
-    }
-    .adm-box { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
-    .adm-header {
-      display: flex; justify-content: space-between; align-items: center;
-      font-family: 'Playfair Display', serif; font-size: 18px; color: var(--gold);
-    }
-    .adm-header button {
-      background: transparent; border: 1px solid var(--border);
-      color: var(--muted); width: 30px; height: 30px;
-      border-radius: 50%; cursor: pointer; font-size: 13px;
-    }
-    .adm-section {
-      background: var(--bg3); border: 1px solid var(--border);
-      border-radius: var(--radius-md); padding: 14px;
-      display: flex; flex-direction: column; gap: 8px;
-    }
-    .adm-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
-    .adm-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text); }
-    .adm-val { font-weight: 600; color: var(--gold); }
-    .adm-empty { font-size: 12px; color: var(--muted); font-style: italic; }
-    .adm-input {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); color: var(--text);
-      font-family: 'DM Sans', sans-serif; font-size: 13px;
-      padding: 8px 10px; width: 100%; outline: none;
-    }
-    .adm-btn {
-      background: var(--gold); color: var(--bg); border: none;
-      padding: 9px 14px; border-radius: var(--radius-sm);
-      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
-      cursor: pointer; transition: background 0.2s; width: 100%;
-    }
-    .adm-btn:hover { background: var(--gold-l); }
-    .adm-btn-danger { background: var(--red); color: white; }
-    .adm-btn-danger:hover { background: var(--red-l); }
-
-    /* Toggle switch */
-    .adm-toggle { position: relative; display: inline-block; width: 42px; height: 22px; }
-    .adm-toggle input { opacity: 0; width: 0; height: 0; }
-    .adm-slider {
-      position: absolute; inset: 0; background: var(--faint);
-      border-radius: 22px; cursor: pointer; transition: 0.2s;
-    }
-    .adm-slider:before {
-      content: ""; position: absolute;
-      width: 16px; height: 16px; left: 3px; bottom: 3px;
-      background: white; border-radius: 50%; transition: 0.2s;
-    }
-    .adm-toggle input:checked + .adm-slider { background: var(--green); }
-    .adm-toggle input:checked + .adm-slider:before { transform: translateX(20px); }
-
-    /* ── Cart bounce ── */
-    @keyframes cartBounce {
-      0%   { transform: translateX(-50%) scale(1); }
-      30%  { transform: translateX(-50%) scale(1.12); }
-      60%  { transform: translateX(-50%) scale(0.96); }
-      100% { transform: translateX(-50%) scale(1); }
-    }
-    .cart-bounce { animation: cartBounce 0.4s cubic-bezier(0.36,0.07,0.19,0.97); }
-
-    /* ── Order confirmation modal ── */
-    #order-confirm {
+    #note-modal, #order-confirm {
       position: fixed; inset: 0; background: rgba(0,0,0,0.7);
       display: flex; align-items: center; justify-content: center;
-      z-index: 650; padding: 16px; animation: nIn 0.2s ease;
+      z-index: 650; padding: 16px;
     }
-    .conf-box {
+    .note-modal-box, .conf-box {
       background: var(--bg2); border: 1px solid var(--border);
       border-radius: var(--radius-lg); padding: 22px;
-      width: 100%; max-width: 420px; max-height: 85vh;
-      overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
+      width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 12px;
     }
-    .conf-header {
-      display: flex; justify-content: space-between; align-items: center;
-      font-family: 'Playfair Display', serif; font-size: 17px; color: var(--cream);
+    .conf-item { display: flex; justify-content: space-between; border-bottom: 1px solid var(--faint); padding: 6px 0; font-size: 13px; }
+    .conf-total { display: flex; justify-content: space-between; font-size: 18px; color: var(--gold); font-weight: 700; }
+    .adm-order { background: var(--bg3); padding: 10px; margin-bottom: 8px; border-radius: 4px; }
+    
+    @keyframes cartBounce {
+      0%, 100% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.1); }
     }
-    .conf-header button {
-      background: transparent; border: 1px solid var(--border);
-      color: var(--muted); width: 28px; height: 28px; border-radius: 50%;
-      cursor: pointer; font-size: 12px;
-    }
-    .conf-items { display: flex; flex-direction: column; gap: 6px; }
-    .conf-item {
-      display: flex; justify-content: space-between;
-      font-size: 13px; color: var(--text);
-      padding: 6px 0; border-bottom: 1px solid var(--faint);
-    }
-    .conf-total {
-      display: flex; justify-content: space-between;
-      font-family: 'Playfair Display', serif;
-      font-size: 18px; color: var(--gold); font-weight: 700;
-      padding-top: 4px;
-    }
-    .conf-meta {
-      font-size: 12px; color: var(--muted);
-      background: var(--bg3); border-radius: var(--radius-sm);
-      padding: 8px 12px;
-    }
-    .conf-actions { display: flex; flex-direction: column; gap: 8px; }
-
-    /* ── Order history in admin ── */
-    .adm-order {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 10px 12px;
-      display: flex; flex-direction: column; gap: 6px;
-      margin-bottom: 8px;
-    }
-    .adm-order-header { display: flex; justify-content: space-between; font-size: 12px; color: var(--text); font-weight: 500; }
-    .adm-order-items { font-size: 11px; color: var(--muted); line-height: 1.5; }
-    .adm-btn-sm { padding: 6px 10px !important; font-size: 12px !important; margin-top: 4px; }
-    .menu-section { margin-bottom: 30px; }
-    .menu-section-title {
-      font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700;
-      color: var(--cream); margin-bottom: 12px;
-      display: flex; align-items: baseline; gap: 10px;
-      padding-bottom: 8px; border-bottom: 1px solid var(--border);
-    }
-    .menu-section-title.top { color: var(--gold); }
-    .section-sub { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--muted); font-weight: 300; }
-    .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
-    .menu-item-highlight { border-color: rgba(212,169,66,0.35); }
-
-    /* Badge styles */
-    .badge-abierto {
-      font-size: 11px; font-weight: 600; color: #4caf78;
-      background: rgba(76,175,120,0.12); border: 1px solid rgba(76,175,120,0.25);
-      padding: 4px 10px; border-radius: 100px; white-space: nowrap; letter-spacing: 0.3px;
-    }
-    .badge-cerrado {
-      font-size: 11px; font-weight: 600; color: #e07070;
-      background: rgba(176,64,64,0.12); border: 1px solid rgba(176,64,64,0.25);
-      padding: 4px 10px; border-radius: 100px; white-space: nowrap; letter-spacing: 0.3px;
-    }
-    @media (max-width: 640px) {
-      .menu-grid { grid-template-columns: 1fr; }
-      #admin-panel { max-width: 100%; }
-    }
+    .cart-bounce { animation: cartBounce 0.4s ease; }
+    .badge-abierto { color: #4caf78; background: rgba(76,175,120,0.1); padding: 4px 8px; border-radius: 10px; }
+    .badge-cerrado { color: #e07070; background: rgba(176,64,64,0.1); padding: 4px 8px; border-radius: 10px; }
   `;
   document.head.appendChild(s);
 }
