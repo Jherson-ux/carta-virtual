@@ -49,7 +49,26 @@ function getTopIds(n = 5) {
     .map(([id]) => String(id));
 }
 
-// ── HIGH DEMAND MESSAGE ──────────────────────────────────
+// ── ORDER HISTORY ────────────────────────────────────────
+function saveOrderHistory() {
+  try {
+    const history = JSON.parse(localStorage.getItem("ec_order_history") || "[]");
+    const order = {
+      date: new Date().toLocaleString("es-CO"),
+      items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, emoji: i.emoji })),
+      total: cart.reduce((s, i) => s + i.price * i.quantity, 0)
+    };
+    history.unshift(order);
+    localStorage.setItem("ec_order_history", JSON.stringify(history.slice(0, 5)));
+  } catch {}
+}
+
+function getOrderHistory() {
+  try { return JSON.parse(localStorage.getItem("ec_order_history") || "[]"); }
+  catch { return []; }
+}
+
+
 function getHighDemand() {
   try { return JSON.parse(localStorage.getItem("ec_demand") || "{}"); }
   catch { return {}; }
@@ -69,6 +88,9 @@ function renderDemandBanner() {
 
 // ── SCHEDULE ─────────────────────────────────────────────
 function getOpenStatus() {
+  if (localStorage.getItem("ec_manual_close") === "1") {
+    return { isOpen: false, minsLeft: 0, manualClose: true };
+  }
   const now  = new Date();
   const day  = now.getDay();
   const time = now.getHours() + now.getMinutes() / 60;
@@ -87,7 +109,7 @@ function getOpenStatus() {
       ? Math.round((open - time) * 60)
       : Math.round((24 - time + nextOpen) * 60);
   }
-  return { isOpen, minsLeft };
+  return { isOpen, minsLeft, manualClose: false };
 }
 
 const SCHEDULE_DAYS = [
@@ -103,14 +125,19 @@ const SCHEDULE_DAYS = [
 function renderBadge() {
   const badge = document.querySelector(".badge-open, .badge-abierto, .badge-cerrado");
   if (!badge) return;
-  const { isOpen, minsLeft } = getOpenStatus();
-  const h = Math.floor(minsLeft / 60);
-  const m = minsLeft % 60;
-  const timeStr = h > 0 ? `${h}h${m > 0 ? ` ${m}m` : ""}` : `${m}m`;
-  badge.textContent = isOpen
-    ? `● Abierto — cierra en ${timeStr}`
-    : `● Cerrado — abre en ${timeStr}`;
-  badge.className   = isOpen ? "badge-abierto" : "badge-cerrado";
+  const { isOpen, minsLeft, manualClose } = getOpenStatus();
+  if (manualClose) {
+    badge.textContent = `● Cerrado temporalmente`;
+    badge.className   = "badge-cerrado";
+  } else {
+    const h = Math.floor(minsLeft / 60);
+    const m = minsLeft % 60;
+    const timeStr = h > 0 ? `${h}h${m > 0 ? ` ${m}m` : ""}` : `${m}m`;
+    badge.textContent = isOpen
+      ? `● Abierto — cierra en ${timeStr}`
+      : `● Cerrado — abre en ${timeStr}`;
+    badge.className   = isOpen ? "badge-abierto" : "badge-cerrado";
+  }
   badge.title = "Ver horarios";
   badge.style.cursor = "pointer";
 }
@@ -259,7 +286,11 @@ function buildCategories() {
     if (si) { si.value = ""; searchQuery = ""; }
     if (sc) sc.style.display = "none";
     renderAll();
-    // Share: update URL with category
+    // Scroll to menu on mobile
+    setTimeout(() => {
+      document.getElementById("menu")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
+    // Update URL
     const url = new URL(window.location);
     if (activeCatId > 0) url.searchParams.set("cat", activeCatId);
     else url.searchParams.delete("cat");
@@ -506,15 +537,19 @@ function initThemeToggle() {
   const btn = document.createElement("button");
   btn.id = "theme-toggle";
   btn.title = "Cambiar tema";
-  btn.textContent = saved === "dark" ? "☀️" : "🌙";
+  btn.innerHTML = saved === "dark"
+    ? `<span class="theme-icon">☀️</span><span class="theme-label">Modo claro</span>`
+    : `<span class="theme-icon">🌙</span><span class="theme-label">Modo oscuro</span>`;
   btn.onclick = () => {
     const current = document.documentElement.getAttribute("data-theme") || "dark";
     const next = current === "dark" ? "light" : "dark";
     applyTheme(next);
     localStorage.setItem("ec_theme", next);
-    btn.textContent = next === "dark" ? "☀️" : "🌙";
+    btn.innerHTML = next === "dark"
+      ? `<span class="theme-icon">☀️</span><span class="theme-label">Modo claro</span>`
+      : `<span class="theme-icon">🌙</span><span class="theme-label">Modo oscuro</span>`;
   };
-  document.querySelector(".header-inner")?.appendChild(btn);
+  document.body.appendChild(btn);
 }
 
 function applyTheme(theme) {
@@ -530,6 +565,10 @@ function addToCart(id, name, price, emoji) {
   else cart.push({ id, name, price, emoji: emoji || "🍽️", quantity: 1 });
   updateCart();
   showNotification(`Agregado ✓`, "success");
+  // Bounce animation on cart button
+  cartButton.classList.remove("cart-bounce");
+  void cartButton.offsetWidth; // reflow to restart animation
+  cartButton.classList.add("cart-bounce");
   if (!searchQuery && activeCatId === 0) renderAll();
 }
 
@@ -582,27 +621,96 @@ function removeFromCart(id, name, silent = false) {
 
 function enviarPedido() {
   const nombre     = document.getElementById("cliente-nombre").value.trim();
+  const celular    = document.getElementById("cliente-celular").value.trim();
   const direccion  = document.getElementById("cliente-direccion").value.trim();
   const notas      = document.getElementById("cliente-notas").value.trim();
   const entrega    = document.getElementById("entrega").value;
   const metodoPago = document.getElementById("metodo-pago").value;
   if (!nombre) { showNotification("Por favor ingresa tu nombre", "error"); return; }
+  if (!celular) { showNotification("Por favor ingresa tu celular", "error"); return; }
   if (entrega === "Domicilio" && !direccion) { showNotification("Por favor ingresa tu dirección", "error"); return; }
+
+  // Build message
   let total = 0;
-  let msg = `🍽️ *Pedido — El Cuñao*\n\n`;
+  let msg = `🍽️ *PEDIDO — EL CUÑAO*\n`;
+  msg += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+  const grouped = {};
   cart.forEach(item => {
-    const t = item.price * item.quantity;
-    total += t;
-    msg += `• ${item.name} x${item.quantity} → $${parseInt(t).toLocaleString("es-CO")}\n`;
+    const prod = allProducts.find(p => String(p.id) === String(item.id));
+    const cat  = prod ? getCatName(prod.categoria_id) : "Otros";
+    if (!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(item);
   });
-  msg += `\n💰 *Subtotal: $${parseInt(total).toLocaleString("es-CO")}*`;
-  if (entrega === "Domicilio") msg += `\n🛵 _El domicilio se cobra por separado_`;
-  msg += `\n\n🧍 *Nombre:* ${nombre}`;
-  if (entrega === "Domicilio") msg += `\n📍 *Dirección:* ${direccion}`;
-  if (notas) msg += `\n📝 *Observaciones:* ${notas}`;
-  msg += `\n📦 *Entrega:* ${entrega}`;
-  msg += `\n💳 *Pago:* ${metodoPago}`;
-  msg += `\n\n📎 _Adjunta el comprobante de pago._`;
+  let itemNum = 1;
+  Object.entries(grouped).forEach(([cat, items]) => {
+    msg += `📌 *${cat}*\n`;
+    items.forEach(item => {
+      const t = item.price * item.quantity;
+      total += t;
+      msg += `  ${itemNum}. ${item.name}\n     x${item.quantity} · $${parseInt(t).toLocaleString("es-CO")}\n`;
+      itemNum++;
+    });
+    msg += `\n`;
+  });
+  msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+  msg += `💰 *TOTAL: $${parseInt(total).toLocaleString("es-CO")}*\n`;
+  if (entrega === "Domicilio") msg += `🛵 _(domicilio se cobra aparte)_\n`;
+  msg += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+  msg += `🧍 *Nombre:* ${nombre}\n`;
+  msg += `📱 *Celular:* ${celular}\n`;
+  if (entrega === "Domicilio") msg += `📍 *Dirección:* ${direccion}\n`;
+  if (notas) msg += `📝 *Notas:* ${notas}\n`;
+  msg += `📦 *Entrega:* ${entrega}\n`;
+  msg += `💳 *Pago:* ${metodoPago}\n\n`;
+  msg += `📎 _Adjunta el comprobante de pago._`;
+
+  // Show confirmation before sending
+  showOrderConfirmation(total, nombre, entrega, msg);
+}
+
+function showOrderConfirmation(total, nombre, entrega, msg) {
+  document.getElementById("order-confirm")?.remove();
+  const itemsList = cart.map(i =>
+    `<div class="conf-item">
+      <span>${i.emoji} ${i.name} x${i.quantity}</span>
+      <span>$${parseInt(i.price * i.quantity).toLocaleString("es-CO")}</span>
+    </div>`
+  ).join("");
+
+  const div = document.createElement("div");
+  div.id = "order-confirm";
+  div.innerHTML = `
+    <div class="conf-box">
+      <div class="conf-header">
+        <span>✅ Confirma tu pedido</span>
+        <button onclick="document.getElementById('order-confirm').remove()">✕</button>
+      </div>
+      <div class="conf-items">${itemsList}</div>
+      <div class="conf-total">
+        <span>Total</span>
+        <span>$${parseInt(total).toLocaleString("es-CO")}</span>
+      </div>
+      <div class="conf-meta">
+        🧍 ${nombre} · 📦 ${entrega}
+      </div>
+      <div class="conf-actions">
+        <button class="btn-enviar" onclick="confirmAndSend(${JSON.stringify(msg).replace(/</g,'\\u003c')})">
+          Enviar por WhatsApp 📲
+        </button>
+        <button class="btn-cancelar" onclick="document.getElementById('order-confirm').remove()">
+          Volver y editar
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(div);
+}
+
+function confirmAndSend(msg) {
+  saveOrderHistory();
+  document.getElementById("order-confirm")?.remove();
+  document.getElementById("pedido-modal").style.display = "none";
+  cart = [];
+  updateCart();
   window.location.href = `https://wa.me/573204206795?text=${encodeURIComponent(msg)}`;
 }
 
@@ -695,8 +803,8 @@ function renderAdminPanel() {
   const today     = new Date().toISOString().slice(0, 10);
   const todayV    = visits[today] || 0;
   const totalV    = visits._total || 0;
+  const manualClose = localStorage.getItem("ec_manual_close") === "1";
 
-  // Top products with names
   const topProds = Object.entries(pop)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 10)
@@ -704,6 +812,19 @@ function renderAdminPanel() {
       const p = allProducts.find(pr => String(pr.id) === id);
       return p ? `<div class="adm-row"><span>${p.nombre}</span><span class="adm-val">${count} veces</span></div>` : "";
     }).join("");
+
+  const history = getOrderHistory();
+  const historyHTML = history.length
+    ? history.map((o, i) => `
+        <div class="adm-order">
+          <div class="adm-order-header">
+            <span>#${i + 1} — ${o.date}</span>
+            <span class="adm-val">$${parseInt(o.total).toLocaleString("es-CO")}</span>
+          </div>
+          <div class="adm-order-items">${o.items.map(it => `${it.emoji} ${it.name} x${it.quantity}`).join(" · ")}</div>
+          <button class="adm-btn adm-btn-sm" onclick="repeatOrder(${i})">Repetir este pedido</button>
+        </div>`).join("")
+    : `<div class="adm-empty">Sin pedidos recientes</div>`;
 
   const panel = document.createElement("div");
   panel.id = "admin-panel";
@@ -721,14 +842,31 @@ function renderAdminPanel() {
       </div>
 
       <div class="adm-section">
+        <div class="adm-title">🔴 Cierre manual</div>
+        <div class="adm-row">
+          <span>Cerrar local ahora</span>
+          <label class="adm-toggle">
+            <input type="checkbox" ${manualClose ? "checked" : ""} onchange="toggleManualClose(this.checked)">
+            <span class="adm-slider"></span>
+          </label>
+        </div>
+        <small style="color:var(--muted);font-size:11px">Actívalo para cerrar antes de la hora habitual</small>
+      </div>
+
+      <div class="adm-section">
         <div class="adm-title">🔥 Más pedidos</div>
         ${topProds || "<div class='adm-empty'>Aún sin datos</div>"}
       </div>
 
       <div class="adm-section">
+        <div class="adm-title">🕐 Últimos pedidos</div>
+        ${historyHTML}
+      </div>
+
+      <div class="adm-section">
         <div class="adm-title">⏱ Mensaje de alta demanda</div>
         <div class="adm-row">
-          <span>Estado</span>
+          <span>Activo</span>
           <label class="adm-toggle">
             <input type="checkbox" id="demand-toggle" ${demand.active ? "checked" : ""} onchange="toggleDemand(this.checked)">
             <span class="adm-slider"></span>
@@ -750,6 +888,27 @@ function renderAdminPanel() {
       </div>
     </div>`;
   document.body.appendChild(panel);
+}
+
+function toggleManualClose(active) {
+  localStorage.setItem("ec_manual_close", active ? "1" : "0");
+  renderBadge();
+  showNotification(active ? "Local cerrado manualmente" : "Local abierto", active ? "error" : "success");
+}
+
+function repeatOrder(index) {
+  const history = getOrderHistory();
+  const order   = history[index];
+  if (!order) return;
+  order.items.forEach(item => {
+    const existing = cart.find(i => i.id === String(item.id) && i.name === item.name);
+    if (existing) existing.quantity += item.quantity;
+    else cart.push({ ...item, id: String(item.id) });
+  });
+  updateCart();
+  document.getElementById("admin-panel")?.remove();
+  cartModal.classList.add("show");
+  showNotification("Pedido cargado al carrito ✓", "success");
 }
 
 function toggleDemand(active) {
@@ -795,15 +954,39 @@ function injectStyles() {
     [data-theme="light"] header     { background: rgba(245,240,232,0.95); }
     [data-theme="light"] #search-cat-wrapper { background: #fffdf8; }
 
-    /* ── Theme toggle button ── */
+    /* ── Theme toggle — floating corner ── */
     #theme-toggle {
-      background: transparent; border: 1px solid var(--border);
-      border-radius: 50%; width: 34px; height: 34px;
-      cursor: pointer; font-size: 16px;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s; margin-left: auto;
+      position: fixed;
+      bottom: 90px;
+      left: 20px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 10px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.25s;
+      z-index: 97;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
     }
-    #theme-toggle:hover { border-color: var(--gold-d); }
+    #theme-toggle:hover {
+      border-color: var(--gold-d);
+      background: var(--bg3);
+      padding-right: 16px;
+    }
+    .theme-icon  { font-size: 16px; line-height: 1; }
+    .theme-label {
+      font-size: 12px; font-weight: 500;
+      color: var(--muted); font-family: 'DM Sans', sans-serif;
+      white-space: nowrap;
+    }
+    #theme-toggle:hover .theme-label { color: var(--gold); }
+    @media (max-width: 400px) {
+      #theme-toggle { padding: 10px 12px; bottom: 84px; left: 14px; }
+      .theme-label { display: none; }
+    }
 
     /* ── Share button on card ── */
     .item-top-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -920,7 +1103,65 @@ function injectStyles() {
     .adm-toggle input:checked + .adm-slider { background: var(--green); }
     .adm-toggle input:checked + .adm-slider:before { transform: translateX(20px); }
 
-    /* Menu section styles */
+    /* ── Cart bounce ── */
+    @keyframes cartBounce {
+      0%   { transform: translateX(-50%) scale(1); }
+      30%  { transform: translateX(-50%) scale(1.12); }
+      60%  { transform: translateX(-50%) scale(0.96); }
+      100% { transform: translateX(-50%) scale(1); }
+    }
+    .cart-bounce { animation: cartBounce 0.4s cubic-bezier(0.36,0.07,0.19,0.97); }
+
+    /* ── Order confirmation modal ── */
+    #order-confirm {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 650; padding: 16px; animation: nIn 0.2s ease;
+    }
+    .conf-box {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 22px;
+      width: 100%; max-width: 420px; max-height: 85vh;
+      overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
+    }
+    .conf-header {
+      display: flex; justify-content: space-between; align-items: center;
+      font-family: 'Playfair Display', serif; font-size: 17px; color: var(--cream);
+    }
+    .conf-header button {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--muted); width: 28px; height: 28px; border-radius: 50%;
+      cursor: pointer; font-size: 12px;
+    }
+    .conf-items { display: flex; flex-direction: column; gap: 6px; }
+    .conf-item {
+      display: flex; justify-content: space-between;
+      font-size: 13px; color: var(--text);
+      padding: 6px 0; border-bottom: 1px solid var(--faint);
+    }
+    .conf-total {
+      display: flex; justify-content: space-between;
+      font-family: 'Playfair Display', serif;
+      font-size: 18px; color: var(--gold); font-weight: 700;
+      padding-top: 4px;
+    }
+    .conf-meta {
+      font-size: 12px; color: var(--muted);
+      background: var(--bg3); border-radius: var(--radius-sm);
+      padding: 8px 12px;
+    }
+    .conf-actions { display: flex; flex-direction: column; gap: 8px; }
+
+    /* ── Order history in admin ── */
+    .adm-order {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 10px 12px;
+      display: flex; flex-direction: column; gap: 6px;
+      margin-bottom: 8px;
+    }
+    .adm-order-header { display: flex; justify-content: space-between; font-size: 12px; color: var(--text); font-weight: 500; }
+    .adm-order-items { font-size: 11px; color: var(--muted); line-height: 1.5; }
+    .adm-btn-sm { padding: 6px 10px !important; font-size: 12px !important; margin-top: 4px; }
     .menu-section { margin-bottom: 30px; }
     .menu-section-title {
       font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700;
