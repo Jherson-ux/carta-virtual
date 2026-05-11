@@ -289,7 +289,12 @@ function buildCategories() {
     if (sc) sc.style.display = "none";
     renderAll();
     setTimeout(() => {
-      document.getElementById("menu")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      const main = document.querySelector("main");
+      if (!main) return;
+      const stickyHeight = (document.querySelector("header")?.offsetHeight || 0)
+                         + (document.getElementById("search-cat-wrapper")?.offsetHeight || 0);
+      const top = main.getBoundingClientRect().top + window.scrollY - stickyHeight - 8;
+      window.scrollTo({ top, behavior: "smooth" });
     }, 80);
     const url = new URL(window.location);
     if (activeCatId > 0) url.searchParams.set("cat", activeCatId);
@@ -426,46 +431,36 @@ function setLabel(label, count) {
   if (sc) sc.textContent = count ? `${count} producto${count !== 1 ? "s" : ""}` : "";
 }
 
-// ── BUILD CARD ───────────────────────────────────────────
+// ── BUILD CARD ─────────────────────────────────────────
 function buildCard(product, highlight = false) {
   const card    = document.createElement("div");
   card.className = "menu-item" + (highlight ? " menu-item-highlight" : "");
   const catName = getCatName(product.categoria_id);
   const emoji   = getEmoji(catName);
-  const imgSrc  = product.imagen && product.imagen !== "default.jpg"
-    ? `img/${product.imagen}` : null;
-  const imgHTML = imgSrc
-    ? `<img src="${imgSrc}" alt="${product.nombre}" onerror="this.parentElement.innerHTML='<div class=\\"img-placeholder\\">${emoji}</div>'">`
-    : `<div class="img-placeholder">${emoji}</div>`;
   const safeId   = String(product.id).replace(/'/g, "");
-  const safeName = product.nombre.replace(/'/g, "\\'");
+  const safeName = product.nombre.replace(/'/g, "\'");
 
-  const badgeHTML = product.nuevo
-    ? `<span class="item-badge badge-new">🆕 Nuevo</span>`
-    : product.destacado
-      ? `<span class="item-badge badge-featured">⭐ Destacado</span>`
-      : "";
-
-  const shareHTML = `<button class="share-btn" title="Compartir" onclick="shareProduct(event,'${safeId}','${safeName}')">🔗</button>`;
+  let badgeHTML = "";
+  if (product.premium || product.destacado)
+    badgeHTML = `<span class="item-badge badge-premium">⭐ PREMIUM</span>`;
+  else if (product.popular)
+    badgeHTML = `<span class="item-badge badge-popular">🔥 POPULAR</span>`;
+  else if (product.nuevo)
+    badgeHTML = `<span class="item-badge badge-new">🆕 NUEVO</span>`;
 
   card.innerHTML = `
-    <div class="menu-item-img-wrap">${imgHTML}</div>
-    <div class="menu-item-body">
-      <div class="item-top-row">
-        <span class="item-category-tag">${catName}</span>
-        ${badgeHTML}
-        ${shareHTML}
-      </div>
-      <h5>${product.nombre}</h5>
-      <p>${product.descripcion || ""}</p>
-      <div class="menu-item-footer">
-        <div class="price"><span class="price-prefix">$</span>${parseInt(product.precio).toLocaleString("es-CO")}</div>
-        <button class="add-btn" onclick="openNoteModal('${safeId}','${safeName}',${product.precio},'${emoji}')">+</button>
-      </div>
+    <div class="card-top">
+      <span class="card-emoji">${emoji}</span>
+      ${badgeHTML}
+    </div>
+    <h5>${product.nombre}</h5>
+    <p>${product.descripcion || ""}</p>
+    <div class="menu-item-footer">
+      <div class="price"><span class="dollar">$ </span>${parseInt(product.precio).toLocaleString("es-CO")}</div>
+      <button class="add-btn" onclick="openNoteModal('${safeId}','${safeName}',${product.precio},'${emoji}')">+</button>
     </div>`;
   return card;
 }
-
 // ── PRODUCT NOTE MODAL ───────────────────────────────────
 function openNoteModal(id, name, price, emoji) {
   document.getElementById("note-modal")?.remove();
@@ -562,7 +557,7 @@ function addToCart(id, name, price, emoji) {
   if (existing) existing.quantity++;
   else cart.push({ id, name, price, emoji: emoji || "🍽️", quantity: 1 });
   updateCart();
-  showNotification(`Agregado ✓`, "success");
+  showNotification(`${name.split("(")[0].trim()} añadido`, "success", "Revisa tu carrito cuando quieras 🛒");
   cartButton.classList.remove("cart-bounce");
   void cartButton.offsetWidth; 
   cartButton.classList.add("cart-bounce");
@@ -573,7 +568,12 @@ function updateCart() {
   cartItemsContainer.innerHTML = "";
   let total = 0;
   if (!cart.length) {
-    cartItemsContainer.innerHTML = `<div class="empty-state"><div class="empty-icon">🛒</div><p>Tu carrito está vacío</p></div>`;
+    cartItemsContainer.innerHTML = `
+      <div class="empty-state">
+        <span class="empty-icon">🛒</span>
+        <p>Tu carrito está vacío</p>
+        <small>Añade productos del menú</small>
+      </div>`;
   } else {
     cart.forEach(item => {
       const t = item.price * item.quantity;
@@ -584,22 +584,32 @@ function updateCart() {
         <div class="cart-item-emoji">${item.emoji}</div>
         <div class="cart-item-details">
           <div class="name">${item.name}</div>
-          <div class="item-price">$${parseInt(t).toLocaleString("es-CO")}</div>
+          <div class="unit-price">$${parseInt(item.price).toLocaleString("es-CO")} c/u</div>
         </div>
-        <div class="cart-controls">
-          <button onclick="changeQty('${item.id}','${item.name}',-1)">−</button>
-          <span>${item.quantity}</span>
-          <button onclick="changeQty('${item.id}','${item.name}',1)">+</button>
-        </div>
-        <button class="remove-btn" onclick="removeFromCart('${item.id}','${item.name}')">✕</button>`;
+        <div class="cart-item-right">
+          <button class="remove-btn" onclick="removeFromCart('${item.id}','${item.name}')">🗑</button>
+          <div class="cart-controls">
+            <button onclick="changeQty('${item.id}','${item.name}',-1)">−</button>
+            <span>${item.quantity}</span>
+            <button onclick="changeQty('${item.id}','${item.name}',1)">+</button>
+          </div>
+          <div class="cart-item-subtotal">$${parseInt(t).toLocaleString("es-CO")}</div>
+        </div>`;
       cartItemsContainer.appendChild(el);
     });
   }
   totalDisplay.textContent = "$" + total.toLocaleString("es-CO");
   const count = cart.reduce((s, i) => s + i.quantity, 0);
   if (cartCountEl) cartCountEl.textContent = count;
+  // Update FAB
   const cartLabel = document.getElementById("cart-label");
-  if (cartLabel) cartLabel.textContent = count > 0 ? `Ver carrito (${count})` : "Ver carrito";
+  const cartTotalFab = document.getElementById("cart-total-fab");
+  const cartSubtitle = document.getElementById("cart-subtitle");
+  if (cartLabel) cartLabel.textContent = "Ver carrito";
+  if (cartTotalFab) cartTotalFab.textContent = count > 0 ? " $" + total.toLocaleString("es-CO") : "";
+  if (cartSubtitle) cartSubtitle.textContent = count + (count === 1 ? " producto" : " productos");
+  // Show/hide FAB
+  if (cartButton) cartButton.classList.toggle("hidden", count === 0);
 }
 
 function changeQty(id, name, delta) {
@@ -754,12 +764,18 @@ function toggleDeliveryNotice() {
 }
 
 // ── NOTIFICATIONS ─────────────────────────────────────────
-function showNotification(msg, type = "success") {
+function showNotification(msg, type = "success", sub = "") {
+  document.querySelectorAll(".notification").forEach(n => n.remove());
   const n = document.createElement("div");
   n.className = `notification ${type}`;
-  n.textContent = msg;
+  n.innerHTML = `
+    <span class="notification-icon"></span>
+    <div class="notification-text">
+      <span class="notification-title">${msg}</span>
+      ${sub ? `<span class="notification-sub">${sub}</span>` : ""}
+    </div>`;
   document.body.appendChild(n);
-  setTimeout(() => { n.classList.add("fade-out"); setTimeout(() => n.remove(), 350); }, 2000);
+  setTimeout(() => { n.classList.add("fade-out"); setTimeout(() => n.remove(), 350); }, 2800);
 }
 
 // ── DRAG SCROLL ──────────────────────────────────────────

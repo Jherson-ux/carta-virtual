@@ -4,40 +4,56 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Menú — El Cuñao</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="estilo.css">
   <script defer src="menu.js"></script>
 </head>
 <body>
 
- <header>
+  <!-- ── HEADER ── -->
+  <header>
     <div class="header-inner">
-      <img src="logo.png" alt="El Cuñao" class="logo-img" onerror="this.style.display='none';document.querySelector('.logo-fallback').style.display='flex'">
-      <div class="logo-fallback">EC</div>
+      <div class="header-logo">
+        <img src="logo.png" alt="EC" class="logo-img" onerror="this.style.display='none';document.querySelector('.logo-fallback').style.display='flex'">
+        <div class="logo-fallback">EC</div>
+      </div>
       <div class="header-text">
         <h1>El Cuñao</h1>
         <p class="tagline">Siempre contigo</p>
       </div>
-      <div class="header-badges">
-        <span class="badge-open">● Abierto</span>
-      </div>
+      <span class="badge-open">● Abierto</span>
     </div>
   </header>
 
-  <div class="hero-banner">
-    <div class="hero-left">
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <div class="hero-content">
       <span class="hero-tag">🔥 Lo más pedido hoy</span>
-      <p class="hero-desc">Salchipapas, perros, hamburguesas y más — directo a tu puerta
-        <br>Todas las Salchipapas llevan (papas a la francesa, lechuga, queso costeño, salsa de la casa)</br>
-      </p>
+      <h2 class="hero-title">
+        Sabor<br>
+        <em>auténtico</em><br>
+        en cada bocado.
+      </h2>
+      <p class="hero-sub">Salchipapas, perros, hamburguesas, pizzas y asados — preparados al momento y entregados directo a tu puerta.</p>
     </div>
-    <div class="hero-stats">
-      <div class="stat"><span class="stat-val">30–45</span><span class="stat-lbl">min entrega</span></div>
-      <div class="stat-sep"></div>
-      <div class="stat"><span class="stat-val">4.9 ★</span><span class="stat-lbl">valoración</span></div>
+    <div class="hero-stats-block">
+      <div class="hero-stat-card">
+        <span class="hstat-icon">🕐</span>
+        <span class="hstat-val">30–45</span>
+        <span class="hstat-lbl">MIN ENTREGA</span>
+      </div>
+      <div class="hero-stat-card">
+        <span class="hstat-icon">⭐</span>
+        <span class="hstat-val">4.9</span>
+        <span class="hstat-lbl">VALORACIÓN</span>
+      </div>
+      <div class="hero-tip">
+        <strong>Tip:</strong> Todas las salchipapas incluyen papas a la francesa, lechuga, queso costeño y salsa de la casa.
+      </div>
     </div>
-  </div>
+  </section>
 
+  <!-- ── SEARCH + CATEGORIES ── -->
   <div id="search-cat-wrapper">
     <div class="search-bar-wrap">
       <svg class="search-icon" viewBox="0 0 20 20" fill="none"><circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M13 13l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -49,6 +65,7 @@
     </div>
   </div>
 
+  <!-- ── MAIN MENU ── -->
   <main>
     <div id="section-header">
       <span id="section-label">Todo el menú</span>
@@ -57,34 +74,46 @@
     <div id="menu"></div>
   </main>
 
-  <button id="cart-button">
+  <!-- ── CART FAB ── -->
+  <button id="cart-button" class="hidden">
     <span class="cart-icon">🛒</span>
     <span id="cart-label">Ver carrito</span>
-    <span id="cart-count">0</span>
+    <span id="cart-total-fab"></span>
+    <span id="cart-count" class="cart-bubble">0</span>
   </button>
 
+  <!-- ── CART PANEL ── -->
   <div id="cart-modal">
     <div id="cart">
       <div class="cart-header">
-        <h2>Tu pedido</h2>
+        <div class="cart-header-left">
+          <div class="cart-header-icon">🛍️</div>
+          <div>
+            <h2>Tu pedido</h2>
+            <span id="cart-subtitle">0 productos</span>
+          </div>
+        </div>
         <button id="close-cart" class="close-btn">✕</button>
       </div>
       <div id="cart-items"></div>
       <div class="cart-footer">
-        <div class="total-row">
-          <span>Subtotal productos</span>
-          <span id="total-display">$0</span>
+        <div class="cart-total-row">
+          <span class="cart-total-label">TOTAL</span>
+          <span id="total-display" class="cart-total-amount">$0</span>
         </div>
-        <div class="cart-delivery-note">
-          🛵 Costo de domicilio se cobra por separado según tu ubicación.
+        <div class="cart-footer-actions">
+          <button class="cart-clear-btn" onclick="clearCart()">Vaciar carrito</button>
         </div>
-        <button id="checkout-button" onclick="checkout()">Continuar pedido →</button>
+        <button id="checkout-button" onclick="checkout()">💬 Pedir por WhatsApp</button>
+        <div class="cart-delivery-note">🛵 Domicilio se cobra por separado según tu ubicación.</div>
       </div>
     </div>
   </div>
 
+  <!-- ── PEDIDO MODAL ── -->
   <div id="pedido-modal" class="pedido-modal">
     <div class="pedido-modal-content">
+      <div class="pedido-modal-handle"></div>
       <div class="modal-header">
         <h2>Completa tu pedido</h2>
         <button class="close-modal-btn" onclick="document.getElementById('pedido-modal').style.display='none'">✕</button>
@@ -100,7 +129,7 @@
       </div>
 
       <div id="aviso-domicilio" class="aviso aviso-delivery">
-        🛵 <strong>Sobre el domicilio:</strong> El costo de envío se cobra por separado y varía según tu ubicación. El repartidor te confirmará el valor exacto al procesar tu pedido.
+        🛵 <strong>Sobre el domicilio:</strong> El costo varía según tu ubicación. El repartidor te confirmará el valor exacto.
       </div>
 
       <div class="field-group">
@@ -109,7 +138,7 @@
       </div>
 
       <div class="field-group">
-        <label for="cliente-celular">Número de celular (de quien recibe)</label>
+        <label for="cliente-celular">Celular (de quien recibe)</label>
         <input type="tel" id="cliente-celular" placeholder="Ej: 3201234567">
       </div>
 
@@ -126,10 +155,8 @@
       <div class="field-group">
         <label for="metodo-pago">Método de pago</label>
         <select id="metodo-pago">
-          <option value="Nequi - 3204206795">Nequi · 3206700691</option>
-          <option value="Daviplata - 3204206795">Daviplata · 3206700691</option>
-          <option value="Bancolombia - 3026019939">Bancolombia · 91297532362</option>
-          <option value="Efectivo">Efectivo</option>
+          <option value="Transferencia">💳 Transferencia</option>
+          <option value="Efectivo">💵 Efectivo</option>
         </select>
       </div>
 
